@@ -1,4 +1,16 @@
-export default function SchoolCatalog() {
+import React, { useState, useEffect } from 'react';
+
+
+function SchoolCatalog() {
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    fetch('./public/api/courses.json')
+      .then(response => response.json())
+      .then(data => setCourses(data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+  
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -54,3 +66,5 @@ export default function SchoolCatalog() {
     </div>
   );
 }
+
+export default SchoolCatalog;
