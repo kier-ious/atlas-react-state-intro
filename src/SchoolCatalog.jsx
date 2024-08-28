@@ -1,16 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 
-function SchoolCatalog() {
-  const [courses, setCourses] = useState([]);
+// Custom hook
+function useFetch(url) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('./public/api/courses.json')
-      .then(response => response.json())
-      .then(data => setCourses(data))
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
-  
+    const fetchData = async () => {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [url]);
+  return { data, loading, error };
+}
+
+function SchoolCatalog() {
+  const { data: courses, loading, error } = useFetch('/api/courses.json');
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading courses: {error.message}</div>;
+
   return (
     <div className="school-catalog">
       <h1>School Catalog</h1>
@@ -27,36 +49,24 @@ function SchoolCatalog() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>PP1000</td>
-            <td>Beginning Procedural Programming</td>
-            <td>2</td>
-            <td>30</td>
-            <td>
-              <button>Enroll</button>
-            </td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>PP1100</td>
-            <td>Basic Procedural Programming</td>
-            <td>4</td>
-            <td>50</td>
-            <td>
-              <button>Enroll</button>
-            </td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>OS1000</td>
-            <td>Fundamentals of Open Source Operating Systems</td>
-            <td>2.5</td>
-            <td>37.5</td>
-            <td>
-              <button>Enroll</button>
-            </td>
-          </tr>
+          {courses.length === 0 ? (
+            <tr>
+              <td colSpan="6">No Course Available</td>
+            </tr>
+          ) : (
+            courses.map((course, index) => (
+              <tr key={index}>
+                <td>{course.trimester}</td>
+                <td>{course.courseNumber}</td>
+                <td>{course.courseName}</td>
+                <td>{course.semesterCredits}</td>
+                <td>{course.totalClockHours}</td>
+                  <td>
+                    <button>Enroll</button>
+                  </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
       <div className="pagination">
