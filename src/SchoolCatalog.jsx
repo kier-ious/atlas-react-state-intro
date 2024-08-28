@@ -32,6 +32,7 @@ function SchoolCatalog() {
   const [search, setSearch] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'courseNumber',
                                                 direction: 'asc'});
+  const [page, setPage] = useState('');
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading courses: {error.message}</div>;
