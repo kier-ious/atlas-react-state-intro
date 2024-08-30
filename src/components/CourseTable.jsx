@@ -1,7 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useCourses } from '../context/CourseContext.jsx';
 
 export function CourseTable({ data = [] }) {
+  const { enrolledCourses, enrollCourse, dropCourse } = useCourses();
+
+  const handleEnroll = (course) => {
+    enrollCourse(course);
+  };
+
   if (!Array.isArray(data)) {
     console.error("Expected 'data' to be an array but received", typeof data);
     return <p>Data is not available</p>;
@@ -16,7 +23,9 @@ export function CourseTable({ data = [] }) {
           <td>{item.courseName}</td>
           <td>{item.semesterCredits}</td>
           <td>{item.totalClockHours}</td>
-          <td><button>Enroll</button></td>
+            <td>
+              <button onClick={() => handleEnroll(item)}>Enroll</button>
+            </td>
         </tr>
       ))}
     </tbody>
