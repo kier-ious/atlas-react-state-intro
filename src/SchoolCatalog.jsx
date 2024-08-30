@@ -27,12 +27,13 @@ function useFetch(url) {
   return { data, loading, error };
 }
 
-function SchoolCatalog() {
+export default function SchoolCatalog() {
   const { data: courses, loading, error } = useFetch('/api/courses.json');
   const [search, setSearch] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: 'courseNumber',
                                                 direction: 'asc'});
-  const [page, setPage] = useState('');
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 5;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading courses: {error.message}</div>;
@@ -41,11 +42,6 @@ function SchoolCatalog() {
   const filteredCourses = courses.filter(course => {
     // Convert all searches to lowercase for comparison
     const searchTerm = search.toLowerCase().trim();
-    const courseNumber = course.courseNumber.toLowerCase();
-    const courseName = course.courseName.toLowerCase();
-
-    console.log('Searching for:', searchTerm) ||
-    console.log('Course:', courseNumber, courseName);
 
     // Check if course # and course name contains searched user input
     return (
@@ -65,6 +61,11 @@ function SchoolCatalog() {
     return 0;
   });
 
+  const paginatedCourses = sortedCourses.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   // Handle sort changes
   const handleSort = (key) => {
     let direction = 'asc';
@@ -73,6 +74,17 @@ function SchoolCatalog() {
     }
     setSortConfig({ key, direction });
   };
+
+  const handleNextPage = () => {
+    setPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePrevPage = () => {
+    setPage((prevPage) => prevPage - 1);
+  };
+
+  const isFirstPage = page === 0;
+  const isLastPage = page >= Math.ceil(sortedCourses.length / rowsPerPage) - 1;
 
   return (
     <div className="school-catalog">
@@ -127,12 +139,12 @@ function SchoolCatalog() {
           </tr>
         </thead>
         <tbody>
-          {sortedCourses.length === 0 ? (
+          {paginatedCourses.length === 0 ? (
             <tr>
               <td colSpan="6">No Course Available</td>
             </tr>
           ) : (
-            sortedCourses.map((course, index) => (
+            paginatedCourses.map((course, index) => (
               <tr key={index}>
                 <td>{course.trimester}</td>
                 <td>{course.courseNumber}</td>
@@ -148,11 +160,9 @@ function SchoolCatalog() {
         </tbody>
       </table>
       <div className="pagination">
-        <button>Previous</button>
-        <button>Next</button>
+        <button onClick={handlePrevPage} disabled={isFirstPage}>Previous</button>
+        <button onClick={handleNextPage} disabled={isLastPage}>Next</button>
       </div>
     </div>
   );
 }
-
-export default SchoolCatalog;
