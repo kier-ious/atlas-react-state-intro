@@ -1,6 +1,6 @@
-import SchoolCatalog from "./SchoolCatalog";
+import SchoolCatalog from "./components/SchoolCatalog";
 import Header from "./Header";
-import ClassSchedule from "./ClassSchedule";
+import ClassSchedule from "./components/ClassSchedule";
 // adding comment to push
 
 export default function App() {

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export default function ClassSchedule() {
   return (
     <div className="class-schedule">
